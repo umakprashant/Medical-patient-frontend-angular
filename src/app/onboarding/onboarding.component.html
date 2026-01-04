@@ -1,0 +1,313 @@
+<div class="onboarding-container">
+  <div class="onboarding-card">
+    <!-- Progress Bar -->
+    <div class="progress-bar">
+      <div class="progress-steps">
+        <div *ngFor="let step of [1, 2, 3]" 
+             class="step-indicator"
+             [class.active]="currentStep >= step"
+             [class.completed]="currentStep > step"
+             (click)="goToStep(step)">
+          <span class="step-number">{{ step }}</span>
+          <span class="step-label">Step {{ step }}</span>
+        </div>
+      </div>
+      <div class="progress-line">
+        <div class="progress-fill" [style.width.%]="((currentStep - 1) / (totalSteps - 1)) * 100"></div>
+      </div>
+    </div>
+
+    <!-- Step 1: Personal Information -->
+    <div *ngIf="currentStep === 1" class="step-content">
+      <h2>Step 1: Personal Information</h2>
+      <form [formGroup]="step1Form" (ngSubmit)="saveStep(1)">
+        <div class="form-group">
+          <label for="fullName">Full Name <span class="required">*</span></label>
+          <input type="text" id="fullName" formControlName="fullName" class="form-control"
+                 [class.error]="step1Form.get('fullName')?.invalid && step1Form.get('fullName')?.touched">
+          <div *ngIf="step1Form.get('fullName')?.invalid && step1Form.get('fullName')?.touched" class="error-message">
+            <span *ngIf="step1Form.get('fullName')?.errors?.['required']">Full name is required</span>
+            <span *ngIf="step1Form.get('fullName')?.errors?.['minWords']">Full name must contain at least 2 words</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="dateOfBirth">Date of Birth <span class="required">*</span></label>
+          <input type="date" id="dateOfBirth" formControlName="dateOfBirth" class="form-control"
+                 [class.error]="step1Form.get('dateOfBirth')?.invalid && step1Form.get('dateOfBirth')?.touched">
+          <div *ngIf="step1Form.get('dateOfBirth')?.invalid && step1Form.get('dateOfBirth')?.touched" class="error-message">
+            <span *ngIf="step1Form.get('dateOfBirth')?.errors?.['required']">Date of birth is required</span>
+            <span *ngIf="step1Form.get('dateOfBirth')?.errors?.['minAge']">Must be at least 18 years old</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="gender">Gender <span class="required">*</span></label>
+          <select id="gender" formControlName="gender" class="form-control"
+                  [class.error]="step1Form.get('gender')?.invalid && step1Form.get('gender')?.touched">
+            <option value="">Select Gender</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+            <option value="Prefer not to say">Prefer not to say</option>
+          </select>
+          <div *ngIf="step1Form.get('gender')?.invalid && step1Form.get('gender')?.touched" class="error-message">
+            Gender is required
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="phoneNumber">Phone Number <span class="required">*</span></label>
+          <input type="tel" id="phoneNumber" formControlName="phoneNumber" class="form-control"
+                 [class.error]="step1Form.get('phoneNumber')?.invalid && step1Form.get('phoneNumber')?.touched">
+          <div *ngIf="step1Form.get('phoneNumber')?.invalid && step1Form.get('phoneNumber')?.touched" class="error-message">
+            <span *ngIf="step1Form.get('phoneNumber')?.errors?.['required']">Phone number is required</span>
+            <span *ngIf="step1Form.get('phoneNumber')?.errors?.['invalidPhone']">Invalid phone number format</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="emergencyContactName">Emergency Contact Name <span class="required">*</span></label>
+          <input type="text" id="emergencyContactName" formControlName="emergencyContactName" class="form-control"
+                 [class.error]="step1Form.get('emergencyContactName')?.invalid && step1Form.get('emergencyContactName')?.touched">
+          <div *ngIf="step1Form.get('emergencyContactName')?.invalid && step1Form.get('emergencyContactName')?.touched" class="error-message">
+            Emergency contact name is required
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="emergencyContactPhone">Emergency Contact Phone <span class="required">*</span></label>
+          <input type="tel" id="emergencyContactPhone" formControlName="emergencyContactPhone" class="form-control"
+                 [class.error]="step1Form.get('emergencyContactPhone')?.invalid && step1Form.get('emergencyContactPhone')?.touched">
+          <div *ngIf="step1Form.get('emergencyContactPhone')?.invalid && step1Form.get('emergencyContactPhone')?.touched" class="error-message">
+            <span *ngIf="step1Form.get('emergencyContactPhone')?.errors?.['required']">Emergency contact phone is required</span>
+            <span *ngIf="step1Form.get('emergencyContactPhone')?.errors?.['invalidPhone']">Invalid phone number format</span>
+          </div>
+        </div>
+
+        <div *ngIf="errorMessage" class="alert alert-error">{{ errorMessage }}</div>
+
+        <div class="button-group">
+          <button type="button" class="btn btn-secondary" (click)="saveStep(1)" [disabled]="isLoading">
+            Save & Continue
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Step 2: Medical Information -->
+    <div *ngIf="currentStep === 2" class="step-content">
+      <h2>Step 2: Medical Information</h2>
+      <form [formGroup]="step2Form" (ngSubmit)="saveStep(2)">
+        <div class="form-group">
+          <label for="bloodType">Blood Type <span class="required">*</span></label>
+          <select id="bloodType" formControlName="bloodType" class="form-control">
+            <option *ngFor="let type of bloodTypeOptions" [value]="type">{{ type }}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="currentMedications">Current Medications</label>
+          <textarea id="currentMedications" formControlName="currentMedications" 
+                    class="form-control" rows="3"
+                    [class.error]="step2Form.get('currentMedications')?.invalid && step2Form.get('currentMedications')?.touched"></textarea>
+          <div *ngIf="step2Form.get('currentMedications')?.invalid && step2Form.get('currentMedications')?.touched" class="error-message">
+            Maximum 500 characters allowed
+          </div>
+          <small class="help-text">{{ step2Form.get('currentMedications')?.value?.length || 0 }}/500 characters</small>
+        </div>
+
+        <div class="form-group">
+          <label>Known Allergies</label>
+          <div class="checkbox-group">
+            <label *ngFor="let allergy of allergyOptions" class="checkbox-label">
+              <input type="checkbox" 
+                     [checked]="isSelected(step2Form.get('knownAllergies')?.value || [], allergy)"
+                     (change)="toggleSelection(step2Form.get('knownAllergies')?.value || [], allergy)">
+              {{ allergy }}
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Chronic Conditions</label>
+          <div class="checkbox-group">
+            <label *ngFor="let condition of chronicConditionOptions" class="checkbox-label">
+              <input type="checkbox"
+                     [checked]="isSelected(step2Form.get('chronicConditions')?.value || [], condition)"
+                     (change)="toggleSelection(step2Form.get('chronicConditions')?.value || [], condition)">
+              {{ condition }}
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="previousSurgeries">Previous Surgeries</label>
+          <textarea id="previousSurgeries" formControlName="previousSurgeries" 
+                    class="form-control" rows="3"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="familyMedicalHistory">Family Medical History</label>
+          <textarea id="familyMedicalHistory" formControlName="familyMedicalHistory" 
+                    class="form-control" rows="3"
+                    [class.error]="step2Form.get('familyMedicalHistory')?.invalid && step2Form.get('familyMedicalHistory')?.touched"></textarea>
+          <div *ngIf="step2Form.get('familyMedicalHistory')?.invalid && step2Form.get('familyMedicalHistory')?.touched" class="error-message">
+            Maximum 300 characters allowed
+          </div>
+          <small class="help-text">{{ step2Form.get('familyMedicalHistory')?.value?.length || 0 }}/300 characters</small>
+        </div>
+
+        <div *ngIf="errorMessage" class="alert alert-error">{{ errorMessage }}</div>
+
+        <div class="button-group">
+          <button type="button" class="btn btn-secondary" (click)="previousStep()">Previous</button>
+          <button type="button" class="btn btn-primary" (click)="saveStep(2)" [disabled]="isLoading">
+            Save & Continue
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Step 3: Insurance Information -->
+    <div *ngIf="currentStep === 3" class="step-content">
+      <h2>Step 3: Insurance Information</h2>
+      <form [formGroup]="step3Form" (ngSubmit)="saveStep(3)">
+        <div class="form-group">
+          <label for="insuranceProvider">Insurance Provider <span class="required">*</span></label>
+          <input type="text" id="insuranceProvider" formControlName="insuranceProvider" class="form-control"
+                 [class.error]="step3Form.get('insuranceProvider')?.invalid && step3Form.get('insuranceProvider')?.touched">
+          <div *ngIf="step3Form.get('insuranceProvider')?.invalid && step3Form.get('insuranceProvider')?.touched" class="error-message">
+            Insurance provider is required
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="insuranceId">Insurance ID <span class="required">*</span></label>
+          <input type="text" id="insuranceId" formControlName="insuranceId" class="form-control"
+                 [class.error]="step3Form.get('insuranceId')?.invalid && step3Form.get('insuranceId')?.touched">
+          <div *ngIf="step3Form.get('insuranceId')?.invalid && step3Form.get('insuranceId')?.touched" class="error-message">
+            Insurance ID is required
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="policyHolderName">Policy Holder Name <span class="required">*</span></label>
+          <input type="text" id="policyHolderName" formControlName="policyHolderName" class="form-control"
+                 [class.error]="step3Form.get('policyHolderName')?.invalid && step3Form.get('policyHolderName')?.touched">
+          <div *ngIf="step3Form.get('policyHolderName')?.invalid && step3Form.get('policyHolderName')?.touched" class="error-message">
+            Policy holder name is required
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="preferredDoctorId">Preferred Doctor <span class="required">*</span></label>
+          <select id="preferredDoctorId" formControlName="preferredDoctorId" class="form-control"
+                  [class.error]="step3Form.get('preferredDoctorId')?.invalid && step3Form.get('preferredDoctorId')?.touched">
+            <option value="">Select a Doctor</option>
+            <option *ngFor="let doctor of doctors" [value]="doctor.id">
+              Dr. {{ doctor.first_name }} {{ doctor.last_name }} - {{ doctor.specialization }}
+            </option>
+          </select>
+          <div *ngIf="step3Form.get('preferredDoctorId')?.invalid && step3Form.get('preferredDoctorId')?.touched" class="error-message">
+            Preferred doctor is required
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Preferred Time Slot <span class="required">*</span></label>
+          <div class="radio-group">
+            <label *ngFor="let slot of timeSlotOptions" class="radio-label">
+              <input type="radio" formControlName="preferredTimeSlot" [value]="slot">
+              {{ slot }}
+            </label>
+          </div>
+          <div *ngIf="step3Form.get('preferredTimeSlot')?.invalid && step3Form.get('preferredTimeSlot')?.touched" class="error-message">
+            Preferred time slot is required
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="referralSource">Referral Source <span class="required">*</span></label>
+          <select id="referralSource" formControlName="referralSource" class="form-control"
+                  [class.error]="step3Form.get('referralSource')?.invalid && step3Form.get('referralSource')?.touched">
+            <option value="">Select Referral Source</option>
+            <option *ngFor="let source of referralSourceOptions" [value]="source">{{ source }}</option>
+          </select>
+          <div *ngIf="step3Form.get('referralSource')?.invalid && step3Form.get('referralSource')?.touched" class="error-message">
+            Referral source is required
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="additionalNotes">Additional Notes</label>
+          <textarea id="additionalNotes" formControlName="additionalNotes" 
+                    class="form-control" rows="3"
+                    [class.error]="step3Form.get('additionalNotes')?.invalid && step3Form.get('additionalNotes')?.touched"></textarea>
+          <div *ngIf="step3Form.get('additionalNotes')?.invalid && step3Form.get('additionalNotes')?.touched" class="error-message">
+            Maximum 200 characters allowed
+          </div>
+          <small class="help-text">{{ step3Form.get('additionalNotes')?.value?.length || 0 }}/200 characters</small>
+        </div>
+
+        <div *ngIf="errorMessage" class="alert alert-error">{{ errorMessage }}</div>
+
+        <div class="button-group">
+          <button type="button" class="btn btn-secondary" (click)="previousStep()">Previous</button>
+          <button type="button" class="btn btn-primary" (click)="saveStep(3)" [disabled]="isLoading">
+            Save & Review
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Summary Step -->
+    <div *ngIf="currentStep === 4 && summary" class="step-content">
+      <h2>Review Your Information</h2>
+      <div class="summary-section">
+        <h3>Step 1: Personal Information</h3>
+        <div class="summary-content" *ngIf="summary.step1">
+          <p><strong>Full Name:</strong> {{ summary.step1.full_name }}</p>
+          <p><strong>Date of Birth:</strong> {{ summary.step1.date_of_birth }}</p>
+          <p><strong>Gender:</strong> {{ summary.step1.gender }}</p>
+          <p><strong>Phone Number:</strong> {{ summary.step1.phone_number }}</p>
+          <p><strong>Emergency Contact:</strong> {{ summary.step1.emergency_contact_name }} ({{ summary.step1.emergency_contact_phone }})</p>
+        </div>
+      </div>
+
+      <div class="summary-section">
+        <h3>Step 2: Medical Information</h3>
+        <div class="summary-content" *ngIf="summary.step2">
+          <p><strong>Blood Type:</strong> {{ summary.step2.blood_type }}</p>
+          <p><strong>Current Medications:</strong> {{ summary.step2.current_medications || 'None' }}</p>
+          <p><strong>Known Allergies:</strong> {{ summary.step2.known_allergies?.join(', ') || 'None' }}</p>
+          <p><strong>Chronic Conditions:</strong> {{ summary.step2.chronic_conditions?.join(', ') || 'None' }}</p>
+          <p><strong>Previous Surgeries:</strong> {{ summary.step2.previous_surgeries || 'None' }}</p>
+          <p><strong>Family Medical History:</strong> {{ summary.step2.family_medical_history || 'None' }}</p>
+        </div>
+      </div>
+
+      <div class="summary-section">
+        <h3>Step 3: Insurance Information</h3>
+        <div class="summary-content" *ngIf="summary.step3">
+          <p><strong>Insurance Provider:</strong> {{ summary.step3.insurance_provider }}</p>
+          <p><strong>Insurance ID:</strong> {{ summary.step3.insurance_id }}</p>
+          <p><strong>Policy Holder:</strong> {{ summary.step3.policy_holder_name }}</p>
+          <p><strong>Preferred Time Slot:</strong> {{ summary.step3.preferred_time_slot }}</p>
+          <p><strong>Referral Source:</strong> {{ summary.step3.referral_source }}</p>
+          <p><strong>Additional Notes:</strong> {{ summary.step3.additional_notes || 'None' }}</p>
+        </div>
+      </div>
+
+      <div *ngIf="errorMessage" class="alert alert-error">{{ errorMessage }}</div>
+
+      <div class="button-group">
+        <button type="button" class="btn btn-secondary" (click)="goToStep(3)">Edit</button>
+        <button type="button" class="btn btn-primary" (click)="completeOnboarding()" [disabled]="isLoading">
+          <span *ngIf="!isLoading">Complete Onboarding</span>
+          <span *ngIf="isLoading">Processing...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

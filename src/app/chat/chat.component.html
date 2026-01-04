@@ -1,0 +1,67 @@
+<div class="chat-container">
+  <div *ngIf="!room && !isLoading" class="no-room">
+    <p>No chat room available. Please complete onboarding to be assigned to a doctor.</p>
+  </div>
+
+  <div *ngIf="room" class="chat-window">
+    <div class="chat-header">
+      <div class="header-info">
+        <h3>{{ getOtherUserName() }}</h3>
+        <div class="status-indicator">
+          <span class="status-dot" [class.online]="otherUserOnline" [class.offline]="!otherUserOnline"></span>
+          <span class="status-text">{{ otherUserOnline ? 'Online' : 'Offline' }}</span>
+        </div>
+      </div>
+      <div *ngIf="unreadCount > 0" class="unread-badge">{{ unreadCount }}</div>
+    </div>
+
+    <div class="messages-container" #messagesContainer>
+      <div
+        *ngFor="let message of messages"
+        class="message"
+        [class.my-message]="isMyMessage(message)"
+      >
+        <div class="message-header">
+          <span class="message-author">
+            {{ message.firstName }} {{ message.lastName }}
+          </span>
+          <span class="message-time">
+            {{ message.createdAt | date:'short' }}
+          </span>
+        </div>
+        <div class="message-content">{{ message.message }}</div>
+        <div *ngIf="isMyMessage(message) && message.readAt" class="message-read">
+          ✓ Read
+        </div>
+      </div>
+      <div *ngIf="otherUserTyping" class="typing-indicator">
+        <span>{{ getOtherUserName() }} is typing...</span>
+      </div>
+      <div *ngIf="messages.length === 0" class="empty-state">
+        No messages yet. Start the conversation!
+      </div>
+    </div>
+
+    <div class="message-input">
+      <input
+        type="text"
+        [(ngModel)]="newMessage"
+        placeholder="Type a message..."
+        class="form-control"
+        (keyup.enter)="sendMessage()"
+        (input)="onTyping()"
+        (blur)="stopTyping()"
+      />
+      <button class="btn btn-primary" (click)="sendMessage()" [disabled]="!newMessage.trim()">
+        Send
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="loading">Loading chat...</div>
+
+  <div *ngIf="errorMessage" class="error-toast">
+    {{ errorMessage }}
+    <button (click)="errorMessage = ''">×</button>
+  </div>
+</div>

@@ -1,0 +1,16 @@
+<div class="app-container">
+  <header *ngIf="authService.isAuthenticated$ | async">
+    <nav>
+      <h1>{{ title }}</h1>
+      <div class="nav-actions">
+        <a *ngIf="authService.getCurrentUser()?.role === 'doctor'" routerLink="/doctor" class="nav-link">Dashboard</a>
+        <a routerLink="/chat" class="nav-link">Chat</a>
+        <button (click)="authService.logout()">Logout</button>
+      </div>
+    </nav>
+  </header>
+  <main>
+    <router-outlet></router-outlet>
+  </main>
+</div>
+

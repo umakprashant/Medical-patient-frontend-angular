@@ -1,0 +1,93 @@
+<div class="doctor-dashboard">
+  <div class="dashboard-header">
+    <h2>My Patients</h2>
+    <button class="btn btn-secondary" (click)="loadPatients()">Refresh</button>
+  </div>
+
+  <div *ngIf="isLoading" class="loading">Loading patients...</div>
+
+  <div *ngIf="errorMessage" class="alert alert-error">
+    {{ errorMessage }}
+    <button (click)="errorMessage = ''">×</button>
+  </div>
+
+  <div *ngIf="!isLoading && patients.length === 0" class="empty-state">
+    <p>No patients assigned yet.</p>
+  </div>
+
+  <div class="patients-list" *ngIf="!isLoading && patients.length > 0">
+    <div
+      *ngFor="let patient of patients"
+      class="patient-card"
+      [class.selected]="selectedPatient?.patient_id === patient.patient_id"
+      (click)="selectPatient(patient)"
+    >
+      <div class="patient-info">
+        <h3>{{ patient.first_name }} {{ patient.last_name }}</h3>
+        <p class="patient-email">{{ patient.email }}</p>
+        <p *ngIf="patient.phone_number" class="patient-phone">{{ patient.phone_number }}</p>
+        <div class="patient-status">
+          <span class="status-badge" [class.completed]="patient.onboarding_completed">
+            {{ patient.onboarding_completed ? 'Onboarded' : 'Pending Onboarding' }}
+          </span>
+        </div>
+      </div>
+      <div class="patient-actions">
+        <div *ngIf="patient.unread_count > 0" class="unread-badge">
+          {{ patient.unread_count }} unread
+        </div>
+        <button class="btn btn-sm btn-primary" (click)="selectPatient(patient); $event.stopPropagation()">
+          Chat
+        </button>
+        <button class="btn btn-sm btn-secondary" (click)="viewPatientDetails(patient); $event.stopPropagation()">
+          Details
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Patient Details Modal -->
+  <div *ngIf="selectedPatient && selectedPatient.onboarding" class="patient-details-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Patient Details: {{ selectedPatient.first_name }} {{ selectedPatient.last_name }}</h3>
+        <button class="close-btn" (click)="selectedPatient = null">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="details-section" *ngIf="selectedPatient.onboarding.personal">
+          <h4>Personal Information</h4>
+          <p><strong>Full Name:</strong> {{ selectedPatient.onboarding.personal.full_name }}</p>
+          <p><strong>Date of Birth:</strong> {{ selectedPatient.onboarding.personal.date_of_birth }}</p>
+          <p><strong>Gender:</strong> {{ selectedPatient.onboarding.personal.gender }}</p>
+          <p><strong>Phone:</strong> {{ selectedPatient.onboarding.personal.phone_number }}</p>
+          <p><strong>Emergency Contact:</strong> {{ selectedPatient.onboarding.personal.emergency_contact_name }} ({{ selectedPatient.onboarding.personal.emergency_contact_phone }})</p>
+        </div>
+
+        <div class="details-section" *ngIf="selectedPatient.onboarding.medical">
+          <h4>Medical Information</h4>
+          <p><strong>Blood Type:</strong> {{ selectedPatient.onboarding.medical.blood_type }}</p>
+          <p><strong>Current Medications:</strong> {{ selectedPatient.onboarding.medical.current_medications || 'None' }}</p>
+          <p><strong>Known Allergies:</strong> {{ selectedPatient.onboarding.medical.known_allergies?.join(', ') || 'None' }}</p>
+          <p><strong>Chronic Conditions:</strong> {{ selectedPatient.onboarding.medical.chronic_conditions?.join(', ') || 'None' }}</p>
+          <p><strong>Previous Surgeries:</strong> {{ selectedPatient.onboarding.medical.previous_surgeries || 'None' }}</p>
+          <p><strong>Family Medical History:</strong> {{ selectedPatient.onboarding.medical.family_medical_history || 'None' }}</p>
+        </div>
+
+        <div class="details-section" *ngIf="selectedPatient.onboarding.insurance">
+          <h4>Insurance Information</h4>
+          <p><strong>Insurance Provider:</strong> {{ selectedPatient.onboarding.insurance.insurance_provider }}</p>
+          <p><strong>Insurance ID:</strong> {{ selectedPatient.onboarding.insurance.insurance_id }}</p>
+          <p><strong>Policy Holder:</strong> {{ selectedPatient.onboarding.insurance.policy_holder_name }}</p>
+          <p><strong>Preferred Time Slot:</strong> {{ selectedPatient.onboarding.insurance.preferred_time_slot }}</p>
+          <p><strong>Referral Source:</strong> {{ selectedPatient.onboarding.insurance.referral_source }}</p>
+          <p><strong>Additional Notes:</strong> {{ selectedPatient.onboarding.insurance.additional_notes || 'None' }}</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" (click)="selectPatient(selectedPatient)">Start Chat</button>
+        <button class="btn btn-secondary" (click)="selectedPatient = null">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
